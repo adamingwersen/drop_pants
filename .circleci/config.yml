@@ -1,0 +1,37 @@
+version: 2
+
+defaults: &defaults
+  working_directory: ~/drop_pants
+  environment:
+    CODE_DIR: src
+
+aliases:
+  - &docker_environment
+    - image: circleci/python:3.6.7
+
+  - &docker_environment_with_pants
+    - image: circleci/python:3.6.7
+    - run: curl -L -O https://pantsbuild.github.io/setup/pants && chmod +x pants && touch pants.ini
+
+  - &checkout
+    name: Default directory to be overridden by specific project environment
+    path: ~/drop_pants
+
+  - &checkout_workspace
+    name: Default directory for persistent files
+    path: ~/drop_pants/.tmp
+
+  - &check_diff
+    name: Assert changes and store in .tmp
+    docker: *docker_environment
+    checkout: *checkout_workspace
+    steps:
+      - run: echo "export LOCAL_CHANGES=$(git diff --name-only HEAD^...HEAD)"
+
+
+
+
+
+  - &test_diffs
+
+  - &build_diffs

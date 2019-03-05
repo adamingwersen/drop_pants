@@ -1,2 +1,5 @@
 **__pycache__
 **.pytest_cache
+**.cache
+**.pants.d
+**.pants.workdir.file_lock
