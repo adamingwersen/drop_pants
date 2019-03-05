@@ -4,34 +4,67 @@ defaults: &defaults
   working_directory: ~/drop_pants
   environment:
     CODE_DIR: src
+    TEST_DIR: test
+    LIB_DIR: 3rdparty
 
 aliases:
   - &docker_environment
     - image: circleci/python:3.6.7
 
+
   - &docker_environment_with_pants
     - image: circleci/python:3.6.7
     - run: curl -L -O https://pantsbuild.github.io/setup/pants && chmod +x pants && touch pants.ini
 
-  - &checkout
-    name: Default directory to be overridden by specific project environment
-    path: ~/drop_pants
+  - &pants_test
+    name: Invoke pants testing
+    command: |
+      pwd && ls -l
+      ./pants test test/$PROGLANG/$PROJECT_DIR
 
-  - &checkout_workspace
-    name: Default directory for persistent files
-    path: ~/drop_pants/.tmp
+  - &test_steps
+    - run: *pants_test
 
-  - &check_diff
-    name: Assert changes and store in .tmp
-    docker: *docker_environment
-    checkout: *checkout_workspace
+  - &test_environment
+    docker:
+      - image: circleci/python:3.6.7
     steps:
-      - run: echo "export LOCAL_CHANGES=$(git diff --name-only HEAD^...HEAD)"
+      - checkout
+      - run:
+          name: Install pants build tool
+          command: |
+            sudo apt-get update && sudo apt-get install -y curl gcc libffi-dev python2.7-dev default-jdk
+            pip3 install setuptools
+            curl -L -O https://pantsbuild.github.io/setup/pants && chmod +x pants
+            ./pants -V
+      - run: echo $PROGLANG
+      - run: echo $PROJECT_DIR
+      - run: *pants_test
 
+jobs:
+  test_api:
+    <<: *test_environment
+    name: Invoke tests on api
+    working_directory: ~/drop_pants
+    environment:
+      PROJECT_DIR: api
+      PROGLANG: python
+      LANG: C.UTF-8
 
+  test_app:
+    <<: *test_environment
+    name: Invoke tests on app
+    working_directory: ~/drop_pants
+    environment:
+      PROJECT_DIR: app
+      PROGLANG: python
+      LANG: C.UTF-8
 
-
-
-  - &test_diffs
-
-  - &build_diffs
+workflows:
+  version: 2
+  build:
+    jobs:
+      - test_api
+      - test_app:
+          requires:
+            - test_api

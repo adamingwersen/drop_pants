@@ -1,0 +1,25 @@
+  - &checkout_workspace
+    name: Default directory for persistent files
+    path: /tmp/cci
+
+
+  - &check_diff_steps
+    - checkout: *checkout
+    - run: pwd && ls -l && echo
+    - run: echo "export LOCAL_CHANGES=$(git diff --name-only HEAD^...HEAD | grep 'src\|test\|3rdparty')"
+    - run: echo "$LOCAL_CHANGES"
+    - checkout: *checkout_workspace
+    - run: chmod -R 777 /tmp/cci
+    - run: mkdir -p workspace
+    - run: pwd && ls -l
+    - run: echo "export PERSISTENT_CHANGES=$LOCAL_CHANGES" >> workspace/new-env-vars
+    - run: cat workspace/new-env-vars >> $BASH_ENV
+    - run: echo ${LOCAL_CHANGES:-NULL} && echo ${PERSISTENT_CHANGES:-NULL}
+    - persist_to_workspace:
+        root: workspace
+        paths:
+          - new-env-vars
+  - &check_diff
+    <<: *defaults
+    docker: *docker_environment
+    steps: *check_diff_steps
