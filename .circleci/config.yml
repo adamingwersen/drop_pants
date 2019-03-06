@@ -1,45 +1,42 @@
 version: 2
 
-defaults: &defaults
-  working_directory: ~/drop_pants
-  environment:
-    CODE_DIR: src
-    TEST_DIR: test
-    LIB_DIR: 3rdparty
-
 aliases:
-  - &docker_environment
+  - &python_container
     - image: circleci/python:3.6.7
 
-
-  - &docker_environment_with_pants
-    - image: circleci/python:3.6.7
-    - run: curl -L -O https://pantsbuild.github.io/setup/pants && chmod +x pants && touch pants.ini
+  - &install_pants
+    name: Install pants and its dependencies
+    command: |
+      sudo apt-get update && sudo apt-get install -y curl gcc libffi-dev python2.7-dev default-jdk
+      pip3 install setuptools
+      curl -L -O https://pantsbuild.github.io/setup/pants && chmod +x pants
+      ./pants -V
 
   - &pants_test
     name: Invoke pants testing
     command: |
-      pwd && ls -l
       ./pants test test/$PROGLANG/$PROJECT_DIR
 
-  - &test_steps
-    - run: *pants_test
+  - &pants_build_binary
+    name: Invoke pants build
+    command: |
+      ./pants
 
   - &test_environment
-    docker:
-      - image: circleci/python:3.6.7
+    name: Spin up environment for testing and run tests
+    docker: *python_container
     steps:
       - checkout
-      - run:
-          name: Install pants build tool
-          command: |
-            sudo apt-get update && sudo apt-get install -y curl gcc libffi-dev python2.7-dev default-jdk
-            pip3 install setuptools
-            curl -L -O https://pantsbuild.github.io/setup/pants && chmod +x pants
-            ./pants -V
-      - run: echo $PROGLANG
-      - run: echo $PROJECT_DIR
+      - run: *install_pants
       - run: *pants_test
+
+  - &build_environment
+    name: Spin up environment for pants build
+    docker: *python_container
+    steps:
+      - checkout
+      - run: *install_pants
+      - run: *pants_build_binary
 
 jobs:
   test_api:
@@ -59,6 +56,9 @@ jobs:
       PROJECT_DIR: app
       PROGLANG: python
       LANG: C.UTF-8
+
+  build_api:
+    <<*
 
 workflows:
   version: 2
