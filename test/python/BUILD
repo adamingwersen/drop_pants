@@ -1,6 +1,5 @@
 python_tests(
   name = 'run_all_tests',
-  sources = globs("*.py"),
   dependencies=[
     '3rdparty/python:urllib3',
     'src/python/app/model',
