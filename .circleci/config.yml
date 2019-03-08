@@ -15,7 +15,7 @@ aliases:
   - &pants_test
     name: Invoke pants testing
     command: |
-      ./pants test test/$PROGLANG/$PROJECT_DIR
+      ./pants test test/$PROGLANG/$PROJECT_DIR:$TEST_COMMAND
 
   - &pants_build_binary
     name: Invoke pants build
@@ -44,7 +44,8 @@ jobs:
     name: Invoke tests on api
     working_directory: ~/drop_pants
     environment:
-      PROJECT_DIR: test_api
+      PROJECT_DIR: api
+      TEST_COMMAND: test_api
       PROGLANG: python
       LANG: C.UTF-8
 
@@ -53,7 +54,8 @@ jobs:
     name: Invoke tests on app
     working_directory: ~/drop_pants
     environment:
-      PROJECT_DIR: test_app
+      PROJECT_DIR: app
+      TEST_COMMAND: test_app
       PROGLANG: python
       LANG: C.UTF-8
 
