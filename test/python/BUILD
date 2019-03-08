@@ -5,7 +5,7 @@ python_tests(
     'src/python/app/model',
     'src/python/app/view',
     'src/python/api',
-    'test/python/app:test_app',
-    'test/python/api:test_api'
+    'test/python/app:test',
+    'test/python/api:test'
   ]
 )

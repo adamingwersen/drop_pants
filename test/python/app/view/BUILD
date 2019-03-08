@@ -1,5 +1,5 @@
 python_tests(
-  name = 'test_view',
+  name = 'test',
   sources = globs("*.py"),
   dependencies = [
     'src/python/app/model',

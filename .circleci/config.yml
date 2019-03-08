@@ -15,11 +15,11 @@ aliases:
   - &pants_test
     name: Invoke pants testing
     command: |
-      if [ "$PROJECT_DIR" == "unknown" ]; then
-        ./pants test test/$PROGLANG:$TEST_COMMAND
-      else
-        ./pants test test/$PROGLANG/$PROJECT_DIR:$TEST_COMMAND
-      fi
+      TEST_FOLDERS=($(ls -d test/$PROGLANG/*/))
+      for folder in "${TEST_FOLDERS[@]}"
+      do
+        ./pants test $folder:test
+      done
 
   - &pants_build_binary
     name: Invoke pants build
@@ -48,28 +48,6 @@ jobs:
     name: Invoke all tests described in test/python/BUILD
     working_directory: ~/drop_pants
     environment:
-      PROJECT_DIR: unknown
-      TEST_COMMAND: run_all_tests
-      PROGLANG: python
-      LANG: C.UTF-8
-
-  test_api:
-    <<: *test_environment
-    name: Invoke tests on api
-    working_directory: ~/drop_pants
-    environment:
-      PROJECT_DIR: api
-      TEST_COMMAND: test_api
-      PROGLANG: python
-      LANG: C.UTF-8
-
-  test_app:
-    <<: *test_environment
-    name: Invoke tests on app
-    working_directory: ~/drop_pants
-    environment:
-      PROJECT_DIR: app
-      TEST_COMMAND: test_app
       PROGLANG: python
       LANG: C.UTF-8
 
@@ -77,11 +55,4 @@ workflows:
   version: 2
   build:
     jobs:
-      - test_api
-      - test_app:
-          requires:
-            - test_api
-      - test_all:
-          requires:
-            - test_app
-            - test_api
+      - test_all
