@@ -15,7 +15,7 @@ aliases:
   - &pants_test
     name: Invoke pants testing
     command: |
-      if ! [ "$PROJECT_DIR" ]; then
+      if [ "$PROJECT_DIR" == "unknown" ]; then
         ./pants test test/$PROGLANG:$TEST_COMMAND
       else
         ./pants test test/$PROGLANG/$PROJECT_DIR:$TEST_COMMAND
@@ -48,7 +48,7 @@ jobs:
     name: Invoke all tests described in test/python/BUILD
     working_directory: ~/drop_pants
     environment:
-      PROJECT_DIR: False
+      PROJECT_DIR: unknown
       TEST_COMMAND: run_all_tests
       PROGLANG: python
       LANG: C.UTF-8
