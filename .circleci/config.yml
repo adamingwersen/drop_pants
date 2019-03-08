@@ -15,7 +15,10 @@ aliases:
   - &pants_test
     name: Invoke pants testing
     command: |
-      ./pants test test/$PROGLANG/$PROJECT_DIR:$TEST_COMMAND
+      if [ -z "$PROJECT_DIR"]; then
+        ./pants test test/$PROGLANG:$TEST_COMMAND
+      else
+        ./pants test test/$PROGLANG/$PROJECT_DIR:$TEST_COMMAND
 
   - &pants_build_binary
     name: Invoke pants build
@@ -39,6 +42,16 @@ aliases:
       - run: *pants_build_binary
 
 jobs:
+  test_all:
+    <<: *test_environment
+    name: Invoke all tests described in test/python/BUILD
+    working_directory: ~/drop_pants
+    environment:
+      PROJECT_DIR: Null
+      TEST_COMMAND: run_all_tests
+      PROGLANG: python
+      LANG: C.UTF-8
+
   test_api:
     <<: *test_environment
     name: Invoke tests on api
@@ -66,4 +79,8 @@ workflows:
       - test_api
       - test_app:
           requires:
+            - test_api
+      - test_all:
+          requires:
+            - test_app
             - test_api
