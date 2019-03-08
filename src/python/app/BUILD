@@ -1,17 +1,17 @@
 python_library(
   name='app',
+  sources = globs("*.py"),
   dependencies=[
     '3rdparty/python:urllib3',
-    'src/python/api'
-  ]
+  ],
 )
 
 python_binary(
   name='app-bin',
   source='app.py',
   dependencies=[
-    'src/python/app',
-    'src/python/api',
+    'src/python/app/model:model',
+    'src/python/app/view:view',
   ],
-  compatibility='CPython>=3'
+  compatibility='CPython>=3.6'
 )

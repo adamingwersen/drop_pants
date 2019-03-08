@@ -1,6 +1,7 @@
 python_library(
-  name='model',
-  dependencies=[
+  name = 'model',
+  sources = globs("*.py"),
+  dependencies = [
     'src/python/api'
-  ]
+  ],
 )
