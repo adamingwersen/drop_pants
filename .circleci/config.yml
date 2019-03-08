@@ -44,7 +44,7 @@ jobs:
     name: Invoke tests on api
     working_directory: ~/drop_pants
     environment:
-      PROJECT_DIR: api
+      PROJECT_DIR: test_api
       PROGLANG: python
       LANG: C.UTF-8
 
@@ -53,7 +53,7 @@ jobs:
     name: Invoke tests on app
     working_directory: ~/drop_pants
     environment:
-      PROJECT_DIR: app
+      PROJECT_DIR: test_app
       PROGLANG: python
       LANG: C.UTF-8
 
